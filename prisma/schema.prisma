@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ticket {
+  id String @id @default(uuid())
+
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(LOW)
+  type        TicketType
+  contact     String
+  creater     String
+  assignee    User?          @relation(fields: [assigneeId], references: [id])
+  assigneeId  String?
+  room        String
+  image       String?
+  createdAt   DateTime       @default(now())
+}
+
+model User {
+  id String @id @default(uuid())
+
+  name     String
+  email    String
+  password String
+  tickets  Ticket[]
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TicketType {
+  FIX
+  BORROW
+  OTHER
+}
