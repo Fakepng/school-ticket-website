@@ -6,12 +6,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Ticket {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  // id String @id @default(uuid())
 
   title       String
   description String
@@ -28,7 +29,8 @@ model Ticket {
 }
 
 model User {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  // id String @id @default(uuid())
 
   name     String
   email    String

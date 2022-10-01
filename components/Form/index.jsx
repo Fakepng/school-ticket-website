@@ -1,12 +1,25 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import imageCompression from "browser-image-compression";
 
 export default function Form() {
-	// const [images, setImages] = useState([]);
+	const [images, setImages] = useState([]);
 	const [imageURLs, setImageURLs] = useState([]);
+	const [imageBase64, setImageBase64] = useState([]);
+	const [title, setTitle] = useState("");
+	const [description, setDescription] = useState("");
+	const [room, setRoom] = useState("");
+	const [name, setName] = useState("");
+	const [contact, setContact] = useState("");
 
-	// useEffect(() => {
-	// 	if (images.length < 1) return;
-	// }, [images]);
+	useEffect(() => {
+		if (images.length < 1) return;
+		let newImageURLs = [];
+		images.forEach((image) => {
+			newImageURLs.push(URL.createObjectURL(image));
+			setImageURLs(newImageURLs);
+		});
+	}, [images]);
 
 	const convertToBase64 = (file) => {
 		return new Promise((resolve, reject) => {
@@ -22,15 +35,45 @@ export default function Form() {
 	};
 
 	const onImageChange = async (e) => {
-		const newImageURLs = [];
 		const images = [...e.target.files];
-		images.forEach((image) => {
-			convertToBase64(image).then((result) => {
-				newImageURLs.push(result);
+		setImages([...e.target.files]);
+
+		const option = {
+			maxSizeMB: 1,
+			maxWidthOrHeight: 1920,
+		};
+
+		let base64 = [];
+		images.forEach(async (image) => {
+			const compressedFile = await imageCompression(image, option);
+			convertToBase64(compressedFile).then((result) => {
+				base64.push(result);
 			});
 		});
-		setImageURLs(newImageURLs);
-		// console.log(newImageURLs);
+		setImageBase64(base64);
+	};
+
+	const onSubmission = async (e) => {
+		axios.post("/api/formSubmit", {
+			title,
+			description,
+			room,
+			name,
+			contact,
+			imageURLs,
+			imageBase64,
+		});
+
+		console.log(
+			"Submitted",
+			title,
+			description,
+			room,
+			name,
+			contact,
+			imageURLs,
+			imageBase64
+		);
 	};
 
 	return (
@@ -45,7 +88,7 @@ export default function Form() {
 						</div>
 					</div>
 					<div className='mt-5 md:col-span-2 md:mt-0'>
-						<form>
+						<div>
 							<div className='shadow sm:overflow-hidden sm:rounded-md'>
 								<div className='space-y-6 bg-white px-4 py-5 sm:p-6'>
 									<div className='grid grid-cols-3 gap-6'>
@@ -62,6 +105,7 @@ export default function Form() {
 													name='ticket-title'
 													id='ticket-title'
 													className='block w-full flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+													onChange={(e) => setTitle(e.target.value)}
 												/>
 											</div>
 										</div>
@@ -81,6 +125,7 @@ export default function Form() {
 												rows={3}
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
 												defaultValue={""}
+												onChange={(e) => setDescription(e.target.value)}
 											/>
 										</div>
 									</div>
@@ -97,6 +142,7 @@ export default function Form() {
 												name='room'
 												id='room'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+												onChange={(e) => setRoom(e.target.value)}
 											/>
 										</div>
 
@@ -113,6 +159,7 @@ export default function Form() {
 												id='name'
 												autoComplete='address-level1'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+												onChange={(e) => setName(e.target.value)}
 											/>
 										</div>
 
@@ -128,6 +175,7 @@ export default function Form() {
 												name='contact'
 												id='contact'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+												onChange={(e) => setContact(e.target.value)}
 											/>
 										</div>
 									</div>
@@ -137,9 +185,16 @@ export default function Form() {
 										</label>
 										<div className='mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6'>
 											{imageURLs.length > 0 ? (
-												<div>
-													{imageURLs.map((image) => {
-														<img width={640} height={640} src={image} />;
+												<div className='flex flex-wrap'>
+													{imageURLs.map((url) => {
+														return (
+															<img
+																key={url}
+																src={url}
+																alt='preview'
+																className='m-2 max-h-60'
+															/>
+														);
 													})}
 												</div>
 											) : (
@@ -163,7 +218,7 @@ export default function Form() {
 															htmlFor='file-upload'
 															className='relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500'
 														>
-															<span>Upload a file</span>
+															<span>Click to Upload a file</span>
 															<input
 																id='file-upload'
 																name='file-upload'
@@ -174,7 +229,6 @@ export default function Form() {
 																className='sr-only'
 															/>
 														</label>
-														<p className='pl-1'>or drag and drop</p>
 													</div>
 													<p className='text-xs text-gray-500'>
 														PNG, JPG, GIF up to 10MB
@@ -186,14 +240,15 @@ export default function Form() {
 								</div>
 								<div className='bg-gray-50 px-4 py-3 text-right sm:px-6'>
 									<button
-										type='submit'
+										// type='submit'
 										className='inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+										onClick={onSubmission}
 									>
 										ส่ง
 									</button>
 								</div>
 							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>
