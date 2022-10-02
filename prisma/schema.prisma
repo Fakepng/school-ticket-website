@@ -20,22 +20,52 @@ model Ticket {
   priority    TicketPriority @default(LOW)
   type        TicketType
   contact     String
-  creater     String
+  creator     String
   assignee    User?          @relation(fields: [assigneeId], references: [id])
-  assigneeId  String?
+  assigneeId  String?        @db.ObjectId
   room        String
-  image       String?
+  image       String[]
   createdAt   DateTime       @default(now())
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   // id String @id @default(uuid())
 
-  name     String
-  email    String
-  password String
-  tickets  Ticket[]
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  tickets       Ticket[]
 }
 
 enum TicketStatus {

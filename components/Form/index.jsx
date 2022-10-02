@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
+import { io } from "socket.io-client";
+let socket;
 
 export default function Form() {
 	const [images, setImages] = useState([]);
@@ -9,7 +11,7 @@ export default function Form() {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [room, setRoom] = useState("");
-	const [name, setName] = useState("");
+	const [creator, setCreator] = useState("");
 	const [contact, setContact] = useState("");
 
 	useEffect(() => {
@@ -20,6 +22,19 @@ export default function Form() {
 			setImageURLs(newImageURLs);
 		});
 	}, [images]);
+
+	const socketInitializer = async () => {
+		await fetch("/api/socket");
+		socket = io();
+
+		socket.on("connect", () => {
+			console.log("connected to server");
+		});
+	};
+
+	useEffect(() => {
+		socketInitializer();
+	}, []);
 
 	const convertToBase64 = (file) => {
 		return new Promise((resolve, reject) => {
@@ -58,22 +73,21 @@ export default function Form() {
 			title,
 			description,
 			room,
-			name,
+			creator,
 			contact,
-			imageURLs,
 			imageBase64,
 		});
 
-		console.log(
-			"Submitted",
-			title,
-			description,
-			room,
-			name,
-			contact,
-			imageURLs,
-			imageBase64
-		);
+		socket.emit("new-ticket", "new ticket created");
+
+		setTitle("");
+		setDescription("");
+		setRoom("");
+		setCreator("");
+		setContact("");
+		setImageBase64([]);
+		setImageURLs([]);
+		setImages([]);
 	};
 
 	return (
@@ -105,6 +119,7 @@ export default function Form() {
 													name='ticket-title'
 													id='ticket-title'
 													className='block w-full flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+													value={title}
 													onChange={(e) => setTitle(e.target.value)}
 												/>
 											</div>
@@ -124,7 +139,7 @@ export default function Form() {
 												name='ticket-description'
 												rows={3}
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-												defaultValue={""}
+												value={description}
 												onChange={(e) => setDescription(e.target.value)}
 											/>
 										</div>
@@ -142,6 +157,7 @@ export default function Form() {
 												name='room'
 												id='room'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+												value={room}
 												onChange={(e) => setRoom(e.target.value)}
 											/>
 										</div>
@@ -157,9 +173,9 @@ export default function Form() {
 												type='text'
 												name='name'
 												id='name'
-												autoComplete='address-level1'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-												onChange={(e) => setName(e.target.value)}
+												value={creator}
+												onChange={(e) => setCreator(e.target.value)}
 											/>
 										</div>
 
@@ -175,6 +191,7 @@ export default function Form() {
 												name='contact'
 												id='contact'
 												className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+												value={contact}
 												onChange={(e) => setContact(e.target.value)}
 											/>
 										</div>

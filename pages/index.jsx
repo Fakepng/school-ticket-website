@@ -10,7 +10,7 @@ export default function Home() {
 			<Head>
 				<title>Ticket</title>
 				<meta name='description' content='Ticket' />
-				<link rel='icon' href='/favicon.ico' />
+				<link rel='icon' href='/images/favicon.ico' />
 			</Head>
 
 			<Headers />
