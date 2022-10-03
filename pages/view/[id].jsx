@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import Header from "../../components/Header";
-import Ticket from "../../components/Ticket";
+import Ticket from "../../components/ddd";
 import Footer from "../../components/Footer";
 
 export default function TicketView() {

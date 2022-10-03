@@ -111,7 +111,7 @@ export default function Ticket({ ticketId }) {
 						<dt className='text-sm font-medium text-gray-500'></dt>
 						<dd className='mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0'>
 							<button
-								class='bg-red-300 hover:bg-red-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center'
+								class='bg-red-400 hover:bg-red-500 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center'
 								onClick={deleteTicket}
 							>
 								<svg className='fill-current w-4 h-4 mr-2' viewBox='0 0 24 24'>
