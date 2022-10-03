@@ -1,9 +1,9 @@
 import Head from "next/head";
 import { getSession } from "next-auth/react";
 
-import Header from "@components/Header";
-import Table from "@components/Table";
-import Footer from "@components/Footer";
+import Header from "../../components/Header";
+import Table from "../../components/Table";
+import Footer from "../../components/Footer";
 
 export default function View() {
 	return (

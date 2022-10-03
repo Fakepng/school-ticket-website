@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import StatusSelector from "@components/StatusSelector";
-import PrioritySelector from "@components/PrioritySelector";
+import StatusSelector from "../StatusSelector";
+import PrioritySelector from "../PrioritySelector";
 
 export default function Ticket({ ticketId }) {
 	const [tickets, setTickets] = useState({});

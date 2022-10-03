@@ -1,9 +1,9 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 
-import Header from "@components/Header";
-import Ticket from "@components/Ticket";
-import Footer from "@components/Footer";
+import Header from "../../components/Header";
+import Ticket from "../../components/Ticket";
+import Footer from "../../components/Footer";
 
 export default function TicketView() {
 	const router = useRouter();
