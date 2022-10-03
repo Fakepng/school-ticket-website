@@ -26,7 +26,7 @@ export default function Header() {
 								<Bars3Icon className='h-6 w-6' aria-hidden='true' />
 							</Popover.Button>
 						</div>
-						{session && (
+						{session?.user.role === "ADMIN" && (
 							<Link
 								href='/view'
 								class='text-base font-medium text-gray-500 hover:text-gray-900'

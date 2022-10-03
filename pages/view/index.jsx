@@ -28,7 +28,7 @@ export default function View() {
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
 
-	if (!session) {
+	if (!(session && session.user.role === "ADMIN")) {
 		return {
 			redirect: {
 				destination: "/",
