@@ -8,6 +8,7 @@ export default function Form() {
 	const [images, setImages] = useState([]);
 	const [imageURLs, setImageURLs] = useState([]);
 	const [imageBase64, setImageBase64] = useState([]);
+	const [imageLength, setImageLength] = useState(0);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [room, setRoom] = useState("");
@@ -63,6 +64,7 @@ export default function Form() {
 			const compressedFile = await imageCompression(image, option);
 			convertToBase64(compressedFile).then((result) => {
 				base64.push(result);
+				setImageLength((prev) => prev + 1);
 			});
 		});
 		setImageBase64(base64);
@@ -203,6 +205,22 @@ export default function Form() {
 										<div className='mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6'>
 											{imageURLs.length > 0 ? (
 												<div className='flex flex-wrap'>
+													<div class='w-full bg-gray-200 rounded-full dark:bg-gray-700'>
+														<div
+															class='bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full'
+															style={{
+																width: `${Math.floor(
+																	(imageLength / imageURLs.length) * 100
+																)}%`,
+															}}
+														>
+															{" "}
+															{Math.floor(
+																(imageLength / imageURLs.length) * 100
+															)}
+															%
+														</div>
+													</div>
 													{imageURLs.map((url) => {
 														return (
 															<img
