@@ -9,6 +9,7 @@ export default function Form() {
 	const [imageURLs, setImageURLs] = useState([]);
 	const [imageBase64, setImageBase64] = useState([]);
 	const [imageLength, setImageLength] = useState(0);
+	const [imageSize, setImageSize] = useState(0);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [room, setRoom] = useState("");
@@ -60,8 +61,11 @@ export default function Form() {
 		};
 
 		let base64 = [];
+		let imageSize = 0;
 		images.forEach(async (image) => {
 			const compressedFile = await imageCompression(image, option);
+			imageSize += compressedFile.size / 1024 / 1024;
+			setImageSize(imageSize);
 			convertToBase64(compressedFile).then((result) => {
 				base64.push(result);
 				setImageLength((prev) => prev + 1);
@@ -71,15 +75,21 @@ export default function Form() {
 	};
 
 	const onSubmission = async (e) => {
-		axios.post("/api/formSubmit", {
+		console.log("Sending...");
+
+		const data = {
 			title,
 			description,
 			room,
 			creator,
 			contact,
 			imageBase64,
-		});
+		};
 
+		await fetch("/api/formSubmit", {
+			method: "POST",
+			body: JSON.stringify(data),
+		});
 		socket.emit("new-ticket", "new ticket created");
 
 		setTitle("");
@@ -90,6 +100,30 @@ export default function Form() {
 		setImageBase64([]);
 		setImageURLs([]);
 		setImages([]);
+		setImageLength(0);
+
+		// await axios
+		// 	.post("/api/formSubmit", {
+		// 		title,
+		// 		description,
+		// 		room,
+		// 		creator,
+		// 		contact,
+		// 		imageBase64,
+		// 	})
+		// 	.finally(() => {
+		// 		socket.emit("new-ticket", "new ticket created");
+
+		// 		setTitle("");
+		// 		setDescription("");
+		// 		setRoom("");
+		// 		setCreator("");
+		// 		setContact("");
+		// 		setImageBase64([]);
+		// 		setImageURLs([]);
+		// 		setImages([]);
+		// 		setImageLength(0);
+		// 	});
 	};
 
 	return (
@@ -205,9 +239,9 @@ export default function Form() {
 										<div className='mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6'>
 											{imageURLs.length > 0 ? (
 												<div className='flex flex-wrap'>
-													<div class='w-full bg-gray-200 rounded-full dark:bg-gray-700'>
+													<div className='w-full bg-gray-200 rounded-full dark:bg-gray-700'>
 														<div
-															class='bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full'
+															className='bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full'
 															style={{
 																width: `${Math.floor(
 																	(imageLength / imageURLs.length) * 100
@@ -221,6 +255,7 @@ export default function Form() {
 															%
 														</div>
 													</div>
+													{imageSize} Mb
 													{imageURLs.map((url) => {
 														return (
 															<img

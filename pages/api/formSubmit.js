@@ -1,7 +1,7 @@
 import { db } from '@utils/db.server'
 
 export default async function handle(req, res) {
-    const {title, description, room, creator, contact, imageBase64} = req.body
+    const {title, description, room, creator, contact, imageBase64} = JSON.parse(req.body)
 
     const data = await db.ticket.create({
         data: {
@@ -20,6 +20,9 @@ export default async function handle(req, res) {
 
 export const config = {
     api: {
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
         responseLimit: false,
     }
 }
